@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Shotle social image</title>
+<!-- Source of og.png. The colors are made up, so the image never matches a real answer.
+     Open it in a browser and capture the page at exactly 1200x630 to replace og.png. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800&family=Instrument+Sans:wght@500;600&display=swap">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:1200px;height:630px;overflow:hidden;background:#0E1814;color:#E4EDE8}
+main{display:grid;grid-template-columns:440px 1fr;gap:44px;align-items:center;height:100%;padding:0 52px 0 64px}
+h1{margin:0;font:800 132px/.88 'Big Shoulders Display',sans-serif;letter-spacing:.03em;text-transform:uppercase}
+p{margin:0}
+.ask{margin-top:30px;font:600 40px/1.15 'Instrument Sans',sans-serif}
+.what{margin-top:18px;font:500 25px/1.3 'Instrument Sans',sans-serif;color:#8FA196}
+.board{background:#15241E;border-radius:12px;padding:20px}
+svg{display:block;width:100%;height:auto}
+.gap{fill:none;stroke:#15241E;stroke-width:4px;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+.line{fill:none;stroke:#0F1B16;stroke-opacity:.3;stroke-width:2.5px;vector-effect:non-scaling-stroke;stroke-linecap:round}
+</style>
+<main>
+  <div>
+    <h1>Shotle</h1>
+    <p class="ask">Whose shot chart is this?</p>
+    <p class="what">A daily NBA guessing game</p>
+  </div>
+  <div class="board"><svg id="court" viewBox="-25 0 50 35"></svg></div>
+</main>
+<script>
+var Z=['#E2513F','#EA7A3F','#F2AB48','#F5DE72','#BADB7E','#6CCB93','#2FB7A6'], CY=29.75;
+var FILL={a0:2,a1:5,a2:1,a3:3,a4:6,m0:4,m1:0,m2:5,m3:2,m4:3,cl:6,cr:1,pt:3,ra:5};
+function pt(a,L){var r=a*Math.PI/180;return [L*Math.cos(r),CY-L*Math.sin(r)];}
+function wedge(k){
+  var a1=k===0?-90:36*k,a2=k===4?270:36*(k+1),p=[[0,CY]],a;
+  for(a=a1;a<a2;a+=12)p.push(pt(a,90));
+  p.push(pt(a2,90));
+  return p.map(function(q){return q[0].toFixed(2)+','+q[1].toFixed(2);}).join(' ');
+}
+function radial(a){
+  var r=a*Math.PI/180,from=Math.min(8/Math.abs(Math.cos(r)),13.75/Math.sin(r)),p=pt(a,from),q=pt(a,90);
+  return '<line class="gap" x1="'+p[0]+'" y1="'+p[1]+'" x2="'+q[0]+'" y2="'+q[1]+'"/>';
+}
+var i,o='<defs><clipPath id="cc"><rect x="-25" y="0" width="50" height="35" rx=".55"/></clipPath><clipPath id="ia"><path d="M -22 35 L -22 20.8 A 23.75 23.75 0 0 1 22 20.8 L 22 35 Z"/></clipPath></defs><g clip-path="url(#cc)">';
+for(i=0;i<5;i++)o+='<polygon fill="'+Z[FILL['a'+i]]+'" points="'+wedge(i)+'"/>';
+o+='<g clip-path="url(#ia)">';
+for(i=0;i<5;i++)o+='<polygon fill="'+Z[FILL['m'+i]]+'" points="'+wedge(i)+'"/>';
+o+='</g><rect fill="'+Z[FILL.cl]+'" x="-25" y="20.8" width="3" height="14.2"/><rect fill="'+Z[FILL.cr]+'" x="22" y="20.8" width="3" height="14.2"/>';
+o+='<rect fill="'+Z[FILL.pt]+'" x="-8" y="16" width="16" height="19"/><circle fill="'+Z[FILL.ra]+'" cx="0" cy="29.75" r="4"/>';
+o+=radial(36)+radial(72)+radial(108)+radial(144);
+o+='<path class="gap" d="M 22 35 L 22 20.8 A 23.75 23.75 0 0 0 -22 20.8 L -22 35"/><path class="gap" d="M 22 20.8 L 25 20.8 M -22 20.8 L -25 20.8"/><path class="gap" d="M -8 35 L -8 16 L 8 16 L 8 35"/><circle class="gap" cx="0" cy="29.75" r="4"/>';
+o+='<path class="line" d="M -6 16 A 6 6 0 0 1 6 16"/><line class="line" x1="-2.6" y1="31.2" x2="2.6" y2="31.2"/><line class="line" x1="0" y1="30.45" x2="0" y2="31.2"/><circle class="line" cx="0" cy="29.75" r=".7"/></g>';
+document.getElementById('court').innerHTML=o;
+</script>

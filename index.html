@@ -4,6 +4,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Shotle</title>
 <meta name="description" content="A daily NBA guessing game: study the shot chart and find the mystery player in 6 guesses.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Shotle">
+<meta property="og:title" content="Shotle: whose shot chart is this?">
+<meta property="og:description" content="A daily NBA guessing game: study the shot chart and find the mystery player in 6 guesses.">
+<meta property="og:url" content="https://gurelahmetcan.github.io/shotle/">
+<meta property="og:image" content="https://gurelahmetcan.github.io/shotle/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="A basketball half court split into colored shooting zones, next to the question: whose shot chart is this?">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#EEF1ED">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0E1814">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
@@ -93,12 +107,12 @@ body{
 @keyframes zt-pop{0%{opacity:0;transform:scale(1.22,.5)}45%{opacity:1;transform:scale(.92,1.14)}75%{transform:scale(1.03,.97)}100%{transform:none}}
 @keyframes zt-nudge{from{transform:translateY(var(--dy))}to{transform:none}}
 .board-foot{display:flex;flex-direction:column;gap:10px}
-.stages{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px;font-family:var(--font-mono);font-size:11px;line-height:1;text-align:center}
-.stage{padding:7px 4px;color:var(--muted);box-shadow:inset 0 0 0 1px var(--rule);transition:background-color .25s ease-out,color .25s ease-out}
-.stage:first-child{border-radius:3px 0 0 3px}
-.stage:last-child{border-radius:0 3px 3px 0}
-.stage.on{background:var(--rule);color:var(--ink);box-shadow:none}
-.stage.cur{background:var(--ink);color:var(--bg);box-shadow:none}
+.board-title{margin:0;font-family:var(--font-display);font-weight:800;font-size:26px;line-height:1.05;letter-spacing:.03em;text-transform:uppercase}
+.stages{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;font-family:var(--font-mono);font-size:11px;line-height:1}
+.stage{padding-top:7px;color:var(--muted);border-top:3px solid var(--rule);transition:color .25s ease-out,border-color .25s ease-out}
+.stage.on{color:var(--ink);border-top-color:var(--muted)}
+.stage.cur{color:var(--ink);font-weight:600;border-top-color:var(--accent)}
+.stage-hint{margin:0;font-size:13px;line-height:1.3;color:var(--muted)}
 .legend{display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:11px;line-height:1;color:var(--muted);white-space:nowrap}
 .ramp{display:flex;gap:2px;flex:1;min-width:0}
 .ramp i{display:block;flex:1;height:8px}
@@ -122,6 +136,7 @@ body{
 #sug li{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:44px;padding:11px 14px;cursor:pointer}
 #sug li small{font-family:var(--font-mono);font-size:12px;color:var(--muted)}
 #sug li[aria-selected="true"],#sug li:hover{background:var(--panel)}
+#sug li.sug-empty,#sug li.sug-empty:hover{cursor:default;background:none;color:var(--muted);font-size:14px}
 
 .count{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
 .count-text{font-family:var(--font-display);font-weight:800;font-size:26px;line-height:1;letter-spacing:.03em;text-transform:uppercase;font-variant-numeric:tabular-nums}
@@ -216,18 +231,21 @@ body{
           </tbody>
         </table>
         <p>Undrafted players show "None" for draft and pick.</p>
+        <p>No arrow on a gray DRAFT or PICK means the answer is undrafted.</p>
       </section>
     </div>
   </details>
 
   <section class="result" id="result" hidden aria-label="Result"></section>
 
-  <section class="board" aria-label="Shot chart">
+  <section class="board" aria-labelledby="boardTitle">
+    <h2 class="board-title" id="boardTitle"></h2>
     <svg id="court" viewBox="-25 0 50 35" aria-hidden="true"></svg>
     <ul id="courtSr" class="sr"></ul>
     <div class="board-foot">
       <div class="legend" id="legend"><span>Below league</span><span class="ramp" aria-hidden="true"><i style="background:var(--z0)"></i><i style="background:var(--z1)"></i><i style="background:var(--z2)"></i><i style="background:var(--z3)"></i><i style="background:var(--z4)"></i><i style="background:var(--z5)"></i><i style="background:var(--z6)"></i></span><span>Above league</span><span class="legend-none" id="legendNone" hidden><i></i>No shots</span></div>
       <div class="stages" id="stages"></div>
+      <p class="stage-hint" id="stageHint"></p>
     </div>
   </section>
 
@@ -491,6 +509,10 @@ function renderChart(){
     if(i===stage) chip.setAttribute('aria-current','step');
     box.appendChild(chip);
   });
+  $('boardTitle').textContent = state.done ? state.target.name+"'s shot chart" : 'Whose shot chart is this?';
+  var hint=$('stageHint');
+  hint.hidden = state.done;
+  hint.textContent = stage===0 ? 'Your next wrong guess adds percentages.' : stage===1 ? 'Your next wrong guess adds shot counts.' : 'Everything on the chart is unlocked.';
 }
 var COLS = ['Team','Division','Position','Height','Draft','Pick'];
 function cellLabel(i,c){
@@ -623,12 +645,32 @@ function paintSel(){
   for(var i=0;i<lis.length;i++) lis[i].setAttribute('aria-selected', i===sugIdx ? 'true' : 'false');
   if(lis[sugIdx]){ lis[sugIdx].scrollIntoView({block:'nearest'}); $('q').setAttribute('aria-activedescendant',lis[sugIdx].id); }
 }
+/* whole-word matches first, so "williams" never starts with Williamson. Ties keep the shot-volume order */
+function matchRank(p,q){
+  var name=norm(p.name), words=name.split(/[\s-]+/);
+  if(name===q || words.indexOf(q)>=0) return 0;
+  if(name.indexOf(q)===0 || words.some(function(w){ return w.indexOf(q)===0; })) return 1;
+  return 2;
+}
+function showSugNote(msg){
+  var ul=$('sug'), li=el('li','sug-empty',msg);
+  li.setAttribute('role','option'); li.setAttribute('aria-disabled','true');
+  ul.appendChild(li);
+  sugIdx=-1; ul.hidden=false;
+  $('q').setAttribute('aria-expanded','true');
+  $('q').removeAttribute('aria-activedescendant');
+  $('announce').textContent=msg;
+}
 function showSug(){
   var q=norm($('q').value.trim()), ul=$('sug');
   if(!q){ hideSug(); return; }
-  sugItems = PL.filter(function(p){ return state.guesses.indexOf(p.id)<0 && norm(p.name).indexOf(q)>=0; }).slice(0,7);
+  var matches = PL.filter(function(p){ return norm(p.name).indexOf(q)>=0; });
+  sugItems = matches.filter(function(p){ return state.guesses.indexOf(p.id)<0; }).sort(function(a,b){ return matchRank(a,q)-matchRank(b,q); }).slice(0,7);
   ul.innerHTML='';
-  if(!sugItems.length){ hideSug(); return; }
+  if(!sugItems.length){
+    showSugNote(matches.length ? 'Already guessed: '+matches[0].name : 'No player found in the 2025-26 season');
+    return;
+  }
   sugItems.forEach(function(p,i){
     var li=el('li'); li.id='sug-'+i; li.setAttribute('role','option'); li.setAttribute('aria-selected','false');
     li.appendChild(el('span',null,p.name)); li.appendChild(el('small',null,p.team));
