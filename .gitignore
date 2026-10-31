@@ -1,0 +1,5 @@
+.venv/
+.claude/
+shotle_cache/
+__pycache__/
+.DS_Store
