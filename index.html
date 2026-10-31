@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="tr">
+<html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Shotle</title>
-<meta name="description" content="Günlük NBA tahmin oyunu: şut haritasına bak, gizli oyuncuyu 6 tahminde bul.">
+<meta name="description" content="A daily NBA guessing game: study the shot chart and find the mystery player in 6 guesses.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
@@ -57,12 +57,24 @@ body{
 @media (pointer:coarse){.tab{min-height:44px}}
 .tab[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 
-.how{border:1px solid var(--rule);border-radius:4px;padding:0 12px;font-size:13px}
+.how{border:1px solid var(--rule);border-radius:4px;padding:0 12px;font-size:14px}
 .how summary{cursor:pointer;min-height:44px;padding:10px 0;font-weight:600;list-style:none;display:flex;align-items:center;gap:8px}
 .how summary::-webkit-details-marker{display:none}
 .how summary::before{content:'';width:6px;height:6px;margin-left:1px;border-right:1.5px solid var(--muted);border-bottom:1.5px solid var(--muted);transform:rotate(-45deg);transition:transform .2s ease-out}
 .how[open] summary::before{transform:translateY(-2px) rotate(45deg)}
-.how p{margin:0 0 12px;color:var(--muted);max-width:62ch}
+.how-body{display:flex;flex-direction:column;gap:18px;padding:2px 0 16px}
+.how-body section{display:flex;flex-direction:column;gap:10px}
+.how-body h2{margin:0;font-family:var(--font-display);font-weight:700;font-size:19px;line-height:1.1;letter-spacing:.03em;text-transform:uppercase}
+.how-body p{margin:0;max-width:62ch}
+.how-body strong{font-weight:600}
+.how-body ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.how-ramp{font-size:12px}
+.how-key{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.how-key div{display:flex;flex-direction:column;gap:5px;font-size:13px}
+.how-table{border-collapse:collapse;width:100%}
+.how-table caption{text-align:left;font-weight:600;padding-bottom:6px}
+.how-table th,.how-table td{padding:6px 0;border-top:1px solid var(--rule);text-align:left;vertical-align:baseline}
+.how-table th{width:64px;font:600 12px var(--font-mono);letter-spacing:.04em;color:var(--muted)}
 
 .board{background:var(--panel);border-radius:6px;padding:12px;display:flex;flex-direction:column;gap:12px}
 .board svg{display:block;width:100%;height:auto}
@@ -111,15 +123,32 @@ body{
 #sug li small{font-family:var(--font-mono);font-size:12px;color:var(--muted)}
 #sug li[aria-selected="true"],#sug li:hover{background:var(--panel)}
 
-.count{font-family:var(--font-mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;margin-bottom:6px}
+.count{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
+.count-text{font-family:var(--font-display);font-weight:800;font-size:26px;line-height:1;letter-spacing:.03em;text-transform:uppercase;font-variant-numeric:tabular-nums}
+.pips{display:flex;gap:4px;flex:none}
+.pip{display:block;width:20px;height:7px;border-radius:2px;background:var(--rule)}
+.pip.used{background:var(--muted)}
+.pip.cur{background:var(--accent)}
+.pip.won{background:var(--hit-bg)}
 .glabels,.gcells{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
 .glabels{font:600 10px var(--font-mono);letter-spacing:.06em;color:var(--muted);text-align:center;position:sticky;top:0;z-index:1;background:var(--bg);padding-block:6px}
 .rows{display:grid;gap:10px}
 .gname{font-weight:600;font-size:13px;margin-bottom:3px}
 .cell{display:flex;align-items:center;justify-content:center;min-height:38px;padding:2px;border-radius:3px;font:500 12px var(--font-mono);text-align:center;font-variant-numeric:tabular-nums}
-.cell.hit{background:var(--hit-bg);color:var(--hit-fg);font-weight:700}
-.cell.near{background:var(--near-bg);color:var(--near-fg)}
-.cell.miss{background:var(--miss-bg);color:var(--miss-fg)}
+.cell-name{font:700 clamp(10.5px,3.25vw,13px) var(--font-display)}
+.cell.hit{--c-bg:var(--hit-bg);--c-fg:var(--hit-fg);--pop:1.1;background:var(--c-bg);color:var(--c-fg);font-weight:700}
+.cell.near{--c-bg:var(--near-bg);--c-fg:var(--near-fg);--pop:1.06;background:var(--c-bg);color:var(--c-fg)}
+.cell.miss{--c-bg:var(--miss-bg);--c-fg:var(--miss-fg);--pop:1.02;background:var(--c-bg);color:var(--c-fg)}
+.cell.flip{animation:cell-flip .52s ease-in-out backwards}
+/* anticipation, the turn, then a landing whose size follows how good the news is */
+@keyframes cell-flip{
+  0%{background:var(--panel);color:transparent;box-shadow:inset 0 0 0 1px var(--rule);transform:perspective(420px) rotateY(0) scale(1)}
+  14%{transform:perspective(420px) rotateY(0) scale(.94)}
+  49.9%{background:var(--panel);color:transparent;box-shadow:inset 0 0 0 1px var(--rule);transform:perspective(420px) rotateY(90deg) scale(1)}
+  50%{background:var(--c-bg);color:var(--c-fg);box-shadow:inset 0 0 0 0 transparent;transform:perspective(420px) rotateY(-90deg) scale(1)}
+  82%{background:var(--c-bg);color:var(--c-fg);transform:perspective(420px) rotateY(0) scale(var(--pop))}
+  100%{background:var(--c-bg);color:var(--c-fg);transform:perspective(420px) rotateY(0) scale(1)}
+}
 
 .result{border:1.5px solid var(--rule);border-radius:6px;overflow:hidden;scroll-margin-top:12px}
 .result[hidden]{display:none}
@@ -148,42 +177,74 @@ body{
       <h1 class="brand">Shotle</h1>
       <div class="meta" id="meta"></div>
     </div>
-    <div class="tabs" role="group" aria-label="Oyun modu">
-      <button class="tab" id="tabDaily" type="button" aria-pressed="true">Günlük</button>
-      <button class="tab" id="tabPractice" type="button" aria-pressed="false">Pratik</button>
+    <div class="tabs" role="group" aria-label="Game mode">
+      <button class="tab" id="tabDaily" type="button" aria-pressed="true">Daily</button>
+      <button class="tab" id="tabPractice" type="button" aria-pressed="false">Practice</button>
     </div>
   </header>
 
   <details class="how">
-    <summary>Nasıl oynanır</summary>
-    <p>Haritaya bakıp gizli oyuncuyu bul. 6 tahmin hakkın var. Her bölge, oyuncunun orada ligin ortalamasına göre ne kadar isabetli olduğunu gösterir: kırmızı ligin altında, sarı ortalama, yeşil ligin üstünde. Her tahminde takım, division, pozisyon, boy, draft yılı ve draft sırası karşılaştırılır. Yeşil tam eşleşme, sarı yakın demek: aynı division'daki takım, aynı konferanstaki division, 2 yıl içindeki draft yılı, 3 sıra içindeki pick. Ok, gizli oyuncunun değerinin daha yüksek ya da düşük olduğunu gösterir. Draft edilmemiş oyuncularda draft ve sıra "yok" yazar. Yanlış tahminlerden sonra haritada yüzdeler ve şut sayıları açılır.</p>
+    <summary>How to play</summary>
+    <div class="how-body">
+      <p>Find the mystery NBA player from their 2025-26 shot chart. You get <strong>6 guesses</strong>.</p>
+      <section>
+        <h2>The chart</h2>
+        <p>Each zone shows how well the player shot there compared with the league average.</p>
+        <div class="legend how-ramp"><span>Below</span><span class="ramp" aria-hidden="true"><i style="background:var(--z0)"></i><i style="background:var(--z1)"></i><i style="background:var(--z2)"></i><i style="background:var(--z3)"></i><i style="background:var(--z4)"></i><i style="background:var(--z5)"></i><i style="background:var(--z6)"></i></span><span>Above</span></div>
+        <ul>
+          <li><strong>1st wrong guess:</strong> shooting percentages appear.</li>
+          <li><strong>2nd wrong guess:</strong> made and attempted shots appear.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Your guesses</h2>
+        <div class="how-key">
+          <div><span class="cell hit">GSW</span>Exact match</div>
+          <div><span class="cell near">GSW</span>Close</div>
+          <div><span class="cell miss">GSW</span>No match</div>
+        </div>
+        <p>An arrow (↑ or ↓) means the answer is higher or lower.</p>
+        <table class="how-table">
+          <caption>What counts as close</caption>
+          <tbody>
+            <tr><th scope="row">TEAM</th><td>Same division</td></tr>
+            <tr><th scope="row">DIV</th><td>Same conference</td></tr>
+            <tr><th scope="row">POS</th><td>Shares a position, like G and G-F</td></tr>
+            <tr><th scope="row">HT</th><td>Within 2 inches</td></tr>
+            <tr><th scope="row">DRAFT</th><td>Within 2 years</td></tr>
+            <tr><th scope="row">PICK</th><td>Within 3 picks</td></tr>
+          </tbody>
+        </table>
+        <p>Undrafted players show "None" for draft and pick.</p>
+      </section>
+    </div>
   </details>
 
-  <section class="result" id="result" hidden aria-label="Sonuç"></section>
+  <section class="result" id="result" hidden aria-label="Result"></section>
 
-  <section class="board" aria-label="Şut haritası">
+  <section class="board" aria-label="Shot chart">
     <svg id="court" viewBox="-25 0 50 35" aria-hidden="true"></svg>
     <ul id="courtSr" class="sr"></ul>
     <div class="board-foot">
-      <div class="legend" id="legend"><span>Ligin altı</span><span class="ramp" aria-hidden="true"><i style="background:var(--z0)"></i><i style="background:var(--z1)"></i><i style="background:var(--z2)"></i><i style="background:var(--z3)"></i><i style="background:var(--z4)"></i><i style="background:var(--z5)"></i><i style="background:var(--z6)"></i></span><span>Ligin üstü</span><span class="legend-none" id="legendNone" hidden><i></i>Şut yok</span></div>
+      <div class="legend" id="legend"><span>Below league</span><span class="ramp" aria-hidden="true"><i style="background:var(--z0)"></i><i style="background:var(--z1)"></i><i style="background:var(--z2)"></i><i style="background:var(--z3)"></i><i style="background:var(--z4)"></i><i style="background:var(--z5)"></i><i style="background:var(--z6)"></i></span><span>Above league</span><span class="legend-none" id="legendNone" hidden><i></i>No shots</span></div>
       <div class="stages" id="stages"></div>
     </div>
   </section>
 
   <section class="search" id="searchWrap">
-    <label for="q" class="sr">Oyuncu ara</label>
-    <input id="q" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="sug" placeholder="Oyuncu ara, örnek: Curry">
-    <ul id="sug" role="listbox" aria-label="Oyuncu önerileri" hidden></ul>
+    <label for="q" class="sr">Search for a player</label>
+    <input id="q" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="sug" placeholder="Search a player, e.g. Curry">
+    <ul id="sug" role="listbox" aria-label="Player suggestions" hidden></ul>
   </section>
 
   <section>
     <div class="count" id="count"></div>
-    <div class="glabels" aria-hidden="true"><span>TAKIM</span><span>DIV.</span><span>POZ.</span><span>BOY</span><span>DRAFT</span><span>PICK</span></div>
+    <div class="glabels" aria-hidden="true"><span>TEAM</span><span>DIV</span><span>POS</span><span>HT</span><span>DRAFT</span><span>PICK</span></div>
     <div class="rows" id="rows"></div>
   </section>
 
 
-  <p class="note">Veri: NBA 2025-26 normal sezonu. Takım, sezonu bitirdiği takımdır. NBA ile bağlantılı değildir.</p>
+  <p class="note">Data: 2025-26 NBA regular season. Teams are where players finished the season. Not affiliated with the NBA.</p>
 <div id="announce" class="sr" aria-live="polite"></div>
 </main>
 
@@ -230,12 +291,12 @@ function zoneFill(id,st){
   return k<0 ? 'fill:url(#noshot)' : 'fill:var(--z'+k+')';
 }
 var ZONE_NAMES = {
-  ra:'Pota çevresi', pt:'Boya',
-  m0:'Orta mesafe, sağ', m1:'Orta mesafe, sağ çapraz', m2:'Orta mesafe, tepe', m3:'Orta mesafe, sol çapraz', m4:'Orta mesafe, sol',
-  cr:'Sağ köşe üçlük', cl:'Sol köşe üçlük',
-  a0:'Üçlük, sağ', a1:'Üçlük, sağ çapraz', a2:'Üçlük, tepe', a3:'Üçlük, sol çapraz', a4:'Üçlük, sol'
+  ra:'Restricted area', pt:'Paint',
+  m0:'Mid-range, right', m1:'Mid-range, right wing', m2:'Mid-range, top', m3:'Mid-range, left wing', m4:'Mid-range, left',
+  cr:'Right corner 3', cl:'Left corner 3',
+  a0:'3-pointer, right', a1:'3-pointer, right wing', a2:'3-pointer, top', a3:'3-pointer, left wing', a4:'3-pointer, left'
 };
-var STEP_NAMES = ['ligin çok altında','ligin altında','ligin biraz altında','lig ortalamasında','ligin biraz üstünde','ligin üstünde','ligin çok üstünde'];
+var STEP_NAMES = ['far below league average','below league average','slightly below league average','around league average','slightly above league average','above league average','far above league average'];
 
 /* ---------- court drawing (svg y = 35 - feet; hoop at svg 0,29.75) ---------- */
 var CY = 29.75;
@@ -248,7 +309,7 @@ function wedge(k){
 }
 /* label anchors in svg units: [zone center x, zone center y, percent font size, made/att font size (0 = not shown, zone too narrow)] */
 var LAB = {
-  ra:[0,27.2,1.75,1.2], pt:[0,20.9,2.7,1.45],
+  ra:[0,29.75,2.4,1.2], pt:[0,20.9,2.7,1.45],
   m0:[15.3,27.4,2.7,1.45], m1:[11.6,15.2,2.7,1.45], m2:[0,9.6,2.7,1.45], m3:[-11.6,15.2,2.7,1.45], m4:[-15.3,27.4,2.7,1.45],
   a0:[22.7,17.2,2.1,0], a1:[17.3,6.4,2.7,1.45], a2:[0,2.9,2.7,1.45], a3:[-17.3,6.4,2.7,1.45], a4:[-22.7,17.2,2.1,0],
   cl:[-23.5,28,1.7,0], cr:[23.5,28,1.7,0]
@@ -263,7 +324,10 @@ var COURT_LINES =
   '<path class="gap" d="M 22 35 L 22 20.8 A 23.75 23.75 0 0 0 -22 20.8 L -22 35"/>' +
   '<path class="gap" d="M 22 20.8 L 25 20.8 M -22 20.8 L -25 20.8"/>' +
   '<path class="gap" d="M -8 35 L -8 16 L 8 16 L 8 35"/>' +
-  '<circle class="gap" cx="0" cy="29.75" r="4"/>' +
+  '<circle class="gap" cx="0" cy="29.75" r="4"/>';
+/* set dressing for the color stage; numbers get a clear floor */
+var COURT_FLOOR =
+  '<path class="court-line" d="M -6 16 A 6 6 0 0 1 6 16"/>' +
   '<line class="court-line" x1="-2.6" y1="31.2" x2="2.6" y2="31.2"/>' +
   '<line class="court-line" x1="0" y1="30.45" x2="0" y2="31.2"/>' +
   '<circle class="court-line" cx="0" cy="29.75" r=".7"/>';
@@ -289,10 +353,10 @@ function drawCourt(p, stage){
   var st=zoneStats(p), out='', i, fresh=drawn.id!==p.id, prev=fresh ? -1 : drawn.stage, anyEmpty=false, srLines=[];
   function z(id,shape){
     var s=st[id], k=zoneStep(id,s), label=ZONE_NAMES[id]+': ';
-    if(k<0){ anyEmpty=true; label+='şut yok'; }
+    if(k<0){ anyEmpty=true; label+='no shots'; }
     else {
       label+=STEP_NAMES[k];
-      if(stage>=1) label+=', %'+Math.round(100*s.m/s.a);
+      if(stage>=1) label+=', '+Math.round(100*s.m/s.a)+'%';
       if(stage>=2) label+=' ('+s.m+'/'+s.a+')';
     }
     srLines.push(label);
@@ -311,17 +375,17 @@ function drawCourt(p, stage){
   out += z('cr','<rect x="22" y="20.8" width="3" height="14.2"/>');
   out += z('pt','<rect x="-8" y="16" width="16" height="19"/>');
   out += z('ra','<circle cx="0" cy="29.75" r="4"/>');
-  out += '</g>'+COURT_LINES+(stage<1 ? '<path class="court-line" d="M -6 16 A 6 6 0 0 1 6 16"/>' : '')+'</g>';
+  out += '</g>'+COURT_LINES+(stage<1 ? COURT_FLOOR : '')+'</g>';
   if(stage>=1){
     out += '<g transform="scale(0.1)">';
     Object.keys(LAB).forEach(function(id){
       var s=st[id], L=LAB[id], x=L[0]*10, cy=L[1], s1=L[2], s2=L[3];
-      var two = stage>=2 && s2>0, narrow=!s2, single=id==='ra' ? 27.85 : cy+0.36*s1, b1=single, b2;
-      if(two){ b1=id==='ra' ? 27.4 : cy+0.09*s1; b2=id==='ra' ? 28.6 : b1+s2*1.05; }
+      var two = stage>=2 && s2>0, narrow=!s2, single=cy+0.36*s1, b1=single, b2;
+      if(two){ b1=cy+0.09*s1; b2=b1+s2*1.05; }
       var delay=Math.round(Math.hypot(L[0],cy-CY)*7)+(fresh ? 340 : 0);
       if(!s.a){
         var none=prev<1 ? ' pop' : '', ns=narrow ? s1 : s2;
-        out += '<text class="zt zt-s zt-none'+none+'" style="font-size:'+(ns*10)+'px;animation-delay:'+delay+'ms" x="'+x.toFixed(1)+'" y="'+((cy+0.36*ns)*10).toFixed(1)+'">'+(narrow ? '0' : '0 şut')+'</text>';
+        out += '<text class="zt zt-s zt-none'+none+'" style="font-size:'+(ns*10)+'px;animation-delay:'+delay+'ms" x="'+x.toFixed(1)+'" y="'+((cy+0.36*ns)*10).toFixed(1)+'">'+(narrow ? '0' : '0 shots')+'</text>';
         return;
       }
       var pct=Math.round(100*s.m/s.a), size=(narrow && pct>=100) ? s1*.8 : s1;
@@ -385,12 +449,12 @@ function wrongCount(){ return state.guesses.filter(function(id){ return id!==sta
 
 /* ---------- comparison ---------- */
 function cmpNum(g,t,near,fmt){
-  if(g==null || t==null) return {c: g==t ? 'hit' : 'miss', t: g==null ? 'yok' : fmt(g)};
+  if(g==null || t==null) return {c: g==t ? 'hit' : 'miss', t: g==null ? 'None' : fmt(g)};
   var d=t-g;
   var cls = d===0 ? 'hit' : (Math.abs(d)<=near ? 'near' : 'miss');
   return {c:cls, t: fmt(g) + (d>0 ? '↑' : d<0 ? '↓' : '')};
 }
-var DIVN = {Atl:'ATL', Cen:'CEN', SE:'SE', NW:'NW', Pac:'PAC', SW:'SW'};
+var DIVN = {Atl:'Atlantic', Cen:'Central', SE:'Southeast', NW:'Northwest', Pac:'Pacific', SW:'Southwest'};
 function compare(g,t){
   var gp=g.pos.split('-'), tp=t.pos.split('-');
   var shared=gp.some(function(x){ return tp.indexOf(x)>=0; });
@@ -409,10 +473,10 @@ function compare(g,t){
 function renderMeta(){
   var m=$('meta');
   if(state.mode==='daily'){
-    var d=new Date().toLocaleDateString('tr-TR',{day:'numeric',month:'short',year:'numeric'});
+    var d=new Date().toLocaleDateString('en-US',{day:'numeric',month:'short',year:'numeric'});
     m.textContent='#'+state.no+' · '+d;
   } else {
-    m.textContent='Pratik · sınırsız oyun';
+    m.textContent='Practice · unlimited play';
   }
   $('tabDaily').setAttribute('aria-pressed', state.mode==='daily' ? 'true' : 'false');
   $('tabPractice').setAttribute('aria-pressed', state.mode==='practice' ? 'true' : 'false');
@@ -420,7 +484,7 @@ function renderMeta(){
 function renderChart(){
   var stage = state.done ? 2 : Math.min(wrongCount(),2);
   drawCourt(state.target, stage);
-  var names=['Renk','Yüzde','Şut sayısı'], box=$('stages');
+  var names=['Color','Percent','Shots'], box=$('stages');
   box.innerHTML='';
   names.forEach(function(n,i){
     var chip=el('span','stage'+(i===stage?' cur':i<stage?' on':''),n);
@@ -428,21 +492,22 @@ function renderChart(){
     box.appendChild(chip);
   });
 }
-var COLS = ['Takım','Division','Pozisyon','Boy','Draft','Sıra'];
+var COLS = ['Team','Division','Position','Height','Draft','Pick'];
 function cellLabel(i,c){
-  var dir=c.t.indexOf('↑')>=0 ? ', gizli oyuncununki daha yüksek' : c.t.indexOf('↓')>=0 ? ', gizli oyuncununki daha düşük' : '';
-  return COLS[i]+' '+c.t.replace(/[↑↓]/,'')+': '+(c.c==='hit' ? 'tam eşleşme' : c.c==='near' ? 'yakın' : 'eşleşmiyor')+dir;
+  var dir=c.t.indexOf('↑')>=0 ? ', the answer is higher' : c.t.indexOf('↓')>=0 ? ', the answer is lower' : '';
+  return COLS[i]+' '+c.t.replace(/[↑↓]/,'')+': '+(c.c==='hit' ? 'exact match' : c.c==='near' ? 'close' : 'no match')+dir;
 }
-function renderRows(){
+function renderRows(animate){
   var box=$('rows');
   box.innerHTML='';
-  state.guesses.slice().reverse().forEach(function(id){
+  state.guesses.slice().reverse().forEach(function(id,r){
     var g=byId[id], row=el('div','guess');
     row.setAttribute('role','group'); row.setAttribute('aria-label',g.name);
     row.appendChild(el('div','gname',g.name));
     var cells=el('div','gcells');
     compare(g,state.target).forEach(function(c,i){
-      var cell=el('div','cell '+c.c), shown=el('span',null,c.t);
+      var cell=el('div','cell '+c.c+(i===1 ? ' cell-name' : '')), shown=el('span',null,c.t);
+      if(animate && r===0){ cell.classList.add('flip'); cell.style.animationDelay=(i*CELL_STAGGER)+'ms'; }
       shown.setAttribute('aria-hidden','true');
       cell.appendChild(shown);
       cell.appendChild(el('span','sr',cellLabel(i,c)));
@@ -451,10 +516,20 @@ function renderRows(){
     row.appendChild(cells);
     box.appendChild(row);
   });
-  $('count').textContent = state.done ? 'Oyun bitti · '+state.guesses.length+'/'+MAX+' tahmin' : 'Tahmin '+(state.guesses.length+1)+'/'+MAX;
+}
+function renderCount(){
+  var n=state.guesses.length, box=$('count'), pips=el('span','pips'), i, cls;
+  box.innerHTML='';
+  box.appendChild(el('span','count-text', state.won ? 'Solved in '+n+'/'+MAX : state.done ? 'Out of guesses' : 'Guess '+(n+1)+' of '+MAX));
+  pips.setAttribute('aria-hidden','true');
+  for(i=0;i<MAX;i++){
+    cls = i<n ? (state.won && i===n-1 ? ' won' : ' used') : (!state.done && i===n ? ' cur' : '');
+    pips.appendChild(el('span','pip'+cls));
+  }
+  box.appendChild(pips);
 }
 function shareGrid(){
-  var head = (state.mode==='daily' ? 'Shotle #'+state.no : 'Shotle pratik') + ' ' + (state.won ? state.guesses.length : 'X') + '/'+MAX;
+  var head = (state.mode==='daily' ? 'Shotle #'+state.no : 'Shotle practice') + ' ' + (state.won ? state.guesses.length : 'X') + '/'+MAX;
   var lines = state.guesses.map(function(id){
     return compare(byId[id],state.target).map(function(c){ return c.c==='hit' ? '🟩' : c.c==='near' ? '🟨' : '⬛'; }).join('');
   });
@@ -469,13 +544,13 @@ var NATIVE_SHARE = COARSE && !!navigator.share;
 function copyResult(btn,label){
   var txt=shareText();
   function ok(){
-    btn.textContent='Kopyalandı';
+    btn.textContent='Copied';
     setTimeout(function(){ if(btn.isConnected) btn.textContent=label; },2000);
   }
   function fallback(){
     var area=document.createElement('textarea');
     area.value=txt; area.className='sr'; document.body.appendChild(area); area.select();
-    try{ if(document.execCommand('copy')) ok(); else btn.textContent='Kopyalanamadı'; }catch(e){ btn.textContent='Kopyalanamadı'; }
+    try{ if(document.execCommand('copy')) ok(); else btn.textContent='Copy failed'; }catch(e){ btn.textContent='Copy failed'; }
     area.remove();
   }
   if(navigator.clipboard && navigator.clipboard.writeText){
@@ -499,23 +574,23 @@ function renderResult(){
   box.hidden=false; box.innerHTML=''; box.classList.add(state.won ? 'won' : 'lost');
 
   var head=el('div','result-head'), title=el('h2',null,t.name);
-  title.id='resultTitle'; title.tabIndex=-1; title.lang='en';
+  title.id='resultTitle'; title.tabIndex=-1;
   head.appendChild(title);
-  head.appendChild(el('p','status', state.won ? (n===1 ? 'İlk tahminde bildin' : n+'. tahminde bildin') : 'Bu sefer olmadı, cevap buydu'));
+  head.appendChild(el('p','status', state.won ? (n===1 ? 'Got it on your first guess' : 'Got it in '+n+' guesses') : 'Not this time. This was the answer.'));
   box.appendChild(head);
 
   var body=el('div','result-body');
-  body.appendChild(el('p','sub', TEAMS[t.team][0]+' · '+t.pos+' · '+fmtH(t.h)+' · '+(t.dy==null ? 'draft edilmedi' : t.dy+' draft, '+t.dp+'. sıra')));
+  body.appendChild(el('p','sub', TEAMS[t.team][0]+' · '+t.pos+' · '+fmtH(t.h)+' · '+(t.dy==null ? 'Undrafted' : t.dy+' draft, pick '+t.dp)));
 
-  var act=el('div','actions'), label=NATIVE_SHARE ? 'Paylaş' : 'Sonucu kopyala';
+  var act=el('div','actions'), label=NATIVE_SHARE ? 'Share' : 'Copy result';
   var share=el('button','btn'+(daily?' primary':''),label); share.type='button';
   share.addEventListener('click',function(){ shareResult(share,label); });
-  var next=el('button','btn'+(daily?'':' primary'), daily ? 'Pratik oyna' : 'Yeni oyuncu'); next.type='button';
+  var next=el('button','btn'+(daily?'':' primary'), daily ? 'Play practice' : 'New player'); next.type='button';
   next.addEventListener('click',function(){ startPractice(); render(); window.scrollTo(0,0); if(!COARSE) $('q').focus(); });
   act.appendChild(daily ? share : next);
   act.appendChild(daily ? next : share);
   if(daily){
-    var cd=el('span','cd','Yeni oyuncu: '+untilNext()); cd.id='cd'; act.appendChild(cd);
+    var cd=el('span','cd','Next player in '+untilNext()); cd.id='cd'; act.appendChild(cd);
   }
   body.appendChild(act);
   body.appendChild(el('pre',null,shareGrid()));
@@ -530,7 +605,8 @@ function finishGame(){
   if(state.won) floodZones();
 }
 function render(){
-  renderMeta(); renderChart(); renderRows(); renderResult();
+  if(reveal){ clearTimeout(reveal.timer); reveal=null; }
+  renderMeta(); renderChart(); renderRows(); renderCount(); renderResult();
   $('searchWrap').hidden = state.done;
   hideSug();
 }
@@ -564,24 +640,42 @@ function showSug(){
 }
 function announceGuess(id){
   var g=byId[id], t=state.target, msg;
-  if(id===t.id) msg=g.name+' doğru. '+state.guesses.length+'. tahminde bildin.';
-  else if(state.done) msg=g.name+' yanlış. Oyun bitti, cevap '+t.name+'.';
+  if(id===t.id) msg=g.name+' is correct. Solved in '+state.guesses.length+' guesses.';
+  else if(state.done) msg=g.name+' is wrong. Game over, the answer was '+t.name+'.';
   else {
-    msg=g.name+' yanlış. '+compare(g,t).map(function(c,i){ return cellLabel(i,c); }).join('. ')+'. Kalan hak '+(MAX-state.guesses.length)+'.';
-    if(wrongCount()===1) msg+=' Haritada yüzdeler açıldı.';
-    if(wrongCount()===2) msg+=' Haritada şut sayıları açıldı.';
+    msg=g.name+' is wrong. '+compare(g,t).map(function(c,i){ return cellLabel(i,c); }).join('. ')+'. Guesses left: '+(MAX-state.guesses.length)+'.';
+    if(wrongCount()===1) msg+=' Percentages are now on the chart.';
+    if(wrongCount()===2) msg+=' Shot counts are now on the chart.';
   }
   $('announce').textContent=msg;
 }
+var CELL_STAGGER = 280, CELL_FLIP = 520, REVEAL_HOLD = 220;
+var reveal = null;
+function endReveal(){
+  if(!reveal) return;
+  var r=reveal;
+  reveal=null;
+  clearTimeout(r.timer);
+  r.settle();
+}
 function pick(id){
+  endReveal();
   var finished=state.done;
   if(!applyGuess(id)) return;
-  save(); $('q').value=''; render(); announceGuess(id);
-  if(state.done && !finished){ finishGame(); return; }
+  save(); $('q').value=''; hideSug();
+  renderRows(!REDUCE_MOTION); announceGuess(id);
   /* a touch keyboard would hide the row this guess just added */
   if(COARSE) $('q').blur();
   var first=$('rows').firstChild;
   if(first) first.scrollIntoView({block:'nearest'});
+  function settle(){
+    renderCount(); renderChart(); renderResult();
+    $('searchWrap').hidden = state.done;
+    hideSug();
+    if(state.done && !finished) finishGame();
+  }
+  if(REDUCE_MOTION){ settle(); return; }
+  reveal={settle:settle, timer:setTimeout(endReveal, 5*CELL_STAGGER+CELL_FLIP+REVEAL_HOLD)};
 }
 $('q').addEventListener('input', showSug);
 $('q').addEventListener('keydown', function(e){
@@ -597,7 +691,7 @@ $('tabPractice').addEventListener('click', function(){ if(state.mode!=='practice
 
 setInterval(function(){
   if(state.mode==='daily' && state.no!==puzzleNo()){ startDaily(); $('q').value=''; render(); return; }
-  var e=$('cd'); if(e) e.textContent='Yeni oyuncu: '+untilNext();
+  var e=$('cd'); if(e) e.textContent='Next player in '+untilNext();
 }, 1000);
 
 startDaily();

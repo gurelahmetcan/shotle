@@ -1,10 +1,10 @@
 # Shotle
 
-Günlük NBA tahmin oyunu. Gizli oyuncunun bölge bazlı şut haritasına bakıp 6 tahminde oyuncuyu bul.
+A daily NBA guessing game. Study the mystery player's zone-by-zone shot chart and find them in 6 guesses.
 
-Site tek dosya: `index.html`. Oyuncu verisi ve takvim dosyanın içine gömülü, sunucu ya da derleme adımı gerekmiyor.
+The site is a single file, `index.html`. Player data and the calendar are embedded in it, so there is no server or build step.
 
-## Veriyi yeniden üretmek
+## Rebuilding the data
 
 ```bash
 python3 -m venv .venv
@@ -13,7 +13,7 @@ python3 -m venv .venv
 .venv/bin/python shotle_calendar.py
 ```
 
-- `shotle_data.py`: `stats.nba.com` verisini çeker, `shotle-data.json` dosyasını yazar ve `index.html` içine gömer. Ham yanıtlar `shotle_cache/` klasöründe saklanır.
-- `shotle_calendar.py`: günlük oyuncu takvimini `puzzles.json` dosyasına yazar ve `index.html` içine gömer. Bugüne kadarki günler korunur, gelecek günler yeniden üretilebilir.
+- `shotle_data.py` fetches `stats.nba.com`, writes `shotle-data.json` and embeds it into `index.html`. Raw responses are kept in `shotle_cache/`.
+- `shotle_calendar.py` writes the daily player calendar to `puzzles.json` and embeds it into `index.html`. Days up to today are kept, future days can change when regenerated.
 
-Bu proje NBA ile bağlantılı değildir. Veriler NBA'in herkese açık istatistik sayfalarından alınmıştır.
+This project is not affiliated with the NBA. Data comes from the NBA's public stats pages.
